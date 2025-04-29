@@ -1,0 +1,98 @@
+/////Update data using react///////
+
+Update a table using React in a Laravel 10 app, here's a basic outline of how to do it. This assumes you're using React for the frontend and Laravel for API.
+Example: Updating a Table of Products
+---
+1. Backend (Laravel 10 API)
+a. Route in routes/api.php:
+Route::get('/products', [ProductController::class, 'index']);
+Route::put('/products/{id}', [ProductController::class, 'update']);
+b. Controller (ProductController.php):
+public function index()
+{
+    return Product::all();
+}
+public function update(Request $request, $id)
+{
+    $product = Product::findOrFail($id);
+    $product->update($request->only(['name', 'price']));
+    return response()->json($product);
+}
+---
+2. Frontend (React Component)
+Make sure you've installed and configured React with Vite or via Laravel Mix.
+a. Table with Editable Rows (React):
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+const ProductTable = () => {
+  const [products, setProducts] = useState([]);
+  useEffect(() => {
+    axios.get('/api/products').then(res => setProducts(res.data));
+  }, []);
+  const handleChange = (id, field, value) => {
+    setProducts(prev =>
+      prev.map(p => (p.id === id ? { ...p, [field]: value } : p))
+    );
+  };
+  const handleSave = (id) => {
+    const product = products.find(p => p.id === id);
+    axios.put(`/api/products/${id}`, {
+      name: product.name,
+      price: product.price,
+    }).then(res => {
+      alert('Updated!');
+    });
+  };
+  return (
+    <table border="1" cellPadding="8">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Price</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {products.map(prod => (
+          <tr key={prod.id}>
+            <td>
+              <input
+                value={prod.name}
+                onChange={(e) => handleChange(prod.id, 'name', e.target.value)}
+              />
+            </td>
+            <td>
+              <input
+                value={prod.price}
+                onChange={(e) => handleChange(prod.id, 'price', e.target.value)}
+              />
+            </td>
+            <td>
+              <button onClick={() => handleSave(prod.id)}>Save</button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
+export default ProductTable;
+---
+3. React Entry Point (resources/js/app.jsx):
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import ProductTable from './ProductTable';
+ReactDOM.createRoot(document.getElementById('app')).render(
+  <React.StrictMode>
+    <ProductTable />
+  </React.StrictMode>
+);
+---
+4. Blade Template to Mount React:
+In resources/views/welcome.blade.php or any other view:
+<div id="app"></div>
+@vite('resources/js/app.jsx')
+---
+Let me know if you want this working with Laravel Breeze, Inertia, or Vite, or if you need table features like sorting or pagination!
+
+
