@@ -1,0 +1,52 @@
+/////Passing data between React components//////
+
+Passing data between React components in a Laravel 10 project works the same as in any React app. Laravel just provides the backend API or serves the initial blade/React views. Here's a quick guide on how to pass data from component to component in React:
+---
+1. Parent to Child (Props)
+// ParentComponent.jsx
+import ChildComponent from './ChildComponent';
+const ParentComponent = () => {
+    const message = "Hello from parent!";
+    return <ChildComponent msg={message} />;
+};
+// ChildComponent.jsx
+const ChildComponent = ({ msg }) => {
+    return <p>{msg}</p>;
+};
+---
+2. Child to Parent (via function props)
+// ParentComponent.jsx
+import { useState } from 'react';
+import ChildComponent from './ChildComponent';
+const ParentComponent = () => {
+    const [childData, setChildData] = useState('');
+    const handleData = (data) => {
+        setChildData(data);
+    };
+    return (
+        <>
+            <ChildComponent sendData={handleData} />
+            <p>Data from child: {childData}</p>
+        </>
+    );
+};
+// ChildComponent.jsx
+const ChildComponent = ({ sendData }) => {
+    return <button onClick={() => sendData("Data from child!")}>Send</button>;
+};
+---
+3. Sibling to Sibling (via common parent)
+Pass data up from one sibling to the parent, then down to the other sibling.
+---
+4. Global State (e.g., Context or Redux)
+Use React Context or Redux for app-wide state sharing, especially useful in Laravel+React setups where components are deeply nested.
+---
+5. From Laravel to React (Initial Props)
+If you're injecting React into a Laravel Blade file:
+<div id="app" data-user="{{ json_encode($user) }}"></div>
+Then in React:
+const el = document.getElementById('app');
+const user = JSON.parse(el.dataset.user);
+---
+Let me know your structure or where you're stuck (like passing props from a Blade view, using Inertia, or full SPA), and I can tailor it better for your Laravel+React setup.
+
