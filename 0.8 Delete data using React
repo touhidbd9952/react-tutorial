@@ -1,0 +1,43 @@
+/////Delete data using React//////
+
+To delete data using React in a Laravel 10 backend setup, you'll generally follow this flow:
+1. Backend (Laravel) - Create Delete API Route
+In routes/api.php:
+use App\Http\Controllers\ProductController;
+Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+In ProductController.php:
+public function destroy($id)
+{
+    $product = Product::find($id);
+    if (!$product) {
+        return response()->json(['message' => 'Product not found'], 404);
+    }
+    $product->delete();
+    return response()->json(['message' => 'Product deleted successfully']);
+}
+---
+2. Frontend (React) - Axios Delete Request
+First, install Axios if you haven't:
+npm install axios
+Then in your component:
+import axios from 'axios';
+const deleteProduct = async (id) => {
+    try {
+        const response = await axios.delete(`http://localhost:8000/api/products/${id}`);
+        alert(response.data.message);
+        // Optionally: Refresh data after delete
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        alert('Failed to delete product');
+    }
+};
+In your component's render/return block:
+<button onClick={() => deleteProduct(product.id)}>Delete</button>
+---
+3. Enable CORS (If needed)
+Install Laravel CORS if you haven’t already:
+composer require fruitcake/laravel-cors
+Then configure cors.php to allow your frontend origin.
+---
+Let me know if you're using Sanctum, Passport, or token-based auth—deletion might require authentication.
+
