@@ -1,0 +1,58 @@
+//////React install in Laravel 10////////
+
+To use React in a Laravel 10 project, you have a few options. The most common and straightforward way is using Laravel Vite (which comes by default with Laravel 10) along with React and Babel. Here’s a step-by-step guide to get you started:
+---
+Step 1: Install Laravel (if not done yet)
+composer create-project laravel/laravel my-app
+cd my-app
+---
+Step 2: Install React and related dependencies
+Run the following:
+npm install react react-dom
+npm install --save-dev @vitejs/plugin-react
+---
+Step 3: Configure Vite for React
+Edit the vite.config.js file like so:
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+import react from '@vitejs/plugin-react';
+export default defineConfig({
+    plugins: [
+        laravel({
+            input: ['resources/css/app.css', 'resources/js/app.jsx'],
+            refresh: true,
+        }),
+        react(),
+    ],
+});
+---
+Step 4: Setup Blade view
+In your Blade file (e.g., resources/views/welcome.blade.php), add:
+<!DOCTYPE html>
+<html>
+<head>
+    @vite(['resources/js/app.jsx'])
+</head>
+<body>
+    <div id="app"></div>
+</body>
+</html>
+---
+Step 5: Create React entry point (component)
+Create a file: resources/js/app.jsx
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+const App = () => {
+    return <h1>Hello from React!</h1>;
+};
+const root = ReactDOM.createRoot(document.getElementById('app'));
+root.render(<App />);
+---
+Step 6: Run Vite and Laravel server
+Run both servers in separate terminals:
+npm run dev
+php artisan serve
+Open http://127.0.0.1:8000 and you should see "Hello from React!".
+---
+Let me know if you want routing with React (e.g., using React Router) or to integrate it with Inertia.js.
+
