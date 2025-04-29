@@ -1,0 +1,38 @@
+//////upload React project in cpanel///////
+
+To upload a React project to a shared hosting environment like cPanel, you need to follow these steps:
+---
+1. Build Your React Project
+Run the build command in your React project root:
+npm run build
+This creates a build/ folder containing static files.
+---
+2. Zip the Build Folder
+Zip the contents of the build folder (not the folder itself):
+cd build
+zip -r ../react-app.zip ./*
+---
+3. Upload to cPanel
+1. Log into your cPanel account.
+2. Open the File Manager.
+3. Go to the public_html/ directory (or a subdomain folder).
+4. Upload the react-app.zip file.
+5. Once uploaded, Extract the ZIP file.
+6. Ensure all files (index.html, static/, etc.) are directly inside public_html/.
+---
+4. (Optional) Configure .htaccess for Routing
+If you're using React Router, you need to configure .htaccess:
+Create or edit the .htaccess file in public_html/ and add:
+Options -MultiViews
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
+This ensures React handles routing instead of showing 404 errors on refresh.
+---
+5. Access Your App
+Now go to:
+https://yourdomain.com
+You should see your React app live!
+---end---
+
