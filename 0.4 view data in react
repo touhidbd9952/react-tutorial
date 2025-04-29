@@ -1,0 +1,70 @@
+//////view data in react///////
+
+To view product table data with images in React while using Laravel 10 as the backend, you can follow this typical flow:
+---
+1. Backend (Laravel 10)
+a. Product Migration Example
+Schema::create('products', function (Blueprint $table) {
+    $table->id();
+    $table->string('name');
+    $table->text('description')->nullable();
+    $table->decimal('price', 8, 2);
+    $table->string('image'); // Store image path
+    $table->timestamps();
+});
+b. Product Model
+class Product extends Model
+{
+    protected $fillable = ['name', 'description', 'price', 'image'];
+}
+c. Product Controller - API
+use App\Models\Product;
+public function index()
+{
+    $products = Product::all();
+    // Convert image path to full URL
+    $products->transform(function ($product) {
+        $product->image = asset('storage/' . $product->image);
+        return $product;
+    });
+    return response()->json($products);
+}
+d. Route (API)
+Route::get('/products', [ProductController::class, 'index']);
+e. Image Storage
+Make sure you're storing images via Laravel's storage/app/public and linking with:
+php artisan storage:link
+---
+2. Frontend (React)
+a. Fetch Data from API
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+const ProductList = () => {
+    const [products, setProducts] = useState([]);
+    useEffect(() => {
+        axios.get('http://localhost:8000/api/products')
+            .then(response => setProducts(response.data))
+            .catch(error => console.error(error));
+    }, []);
+    return (
+        <div className="grid grid-cols-3 gap-4 p-4">
+            {products.map(product => (
+                <div key={product.id} className="border p-4 rounded shadow">
+                    <img src={product.image} alt={product.name} className="w-full h-40 object-cover mb-2" />
+                    <h2 className="text-xl font-semibold">{product.name}</h2>
+                    <p className="text-gray-700">{product.description}</p>
+                    <p className="text-green-600 font-bold">${product.price}</p>
+                </div>
+            ))}
+        </div>
+    );
+};
+export default ProductList;
+---
+3. CORS Configuration
+Make sure Laravel allows your React app to make requests. Install CORS package if needed:
+composer require fruitcake/laravel-cors
+Or configure it in config/cors.php:
+'paths' => ['api/*'],
+'allowed_origins' => ['http://localhost:3000'], // React origin
+--- end ---
