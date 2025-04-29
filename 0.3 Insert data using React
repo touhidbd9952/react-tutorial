@@ -1,0 +1,118 @@
+///////Insert data using React/////////
+
+To insert data into a products table with picture upload using React (frontend) and Laravel 10 (backend), here's a basic step-by-step example.
+---
+1. Backend: Laravel Setup
+a. Migration for products table
+// database/migrations/xxxx_xx_xx_create_products_table.php
+public function up()
+{
+    Schema::create('products', function (Blueprint $table) {
+        $table->id();
+        $table->string('name');
+        $table->text('description')->nullable();
+        $table->decimal('price', 10, 2);
+        $table->string('image')->nullable();
+        $table->timestamps();
+    });
+}
+Run:
+php artisan migrate
+---
+b. Create Product model
+php artisan make:model Product
+---
+c. Create ProductController
+php artisan make:controller ProductController
+d. API Route
+// routes/api.php
+use App\Http\Controllers\ProductController;
+Route::post('/products', [ProductController::class, 'store']);
+---
+e. Store Method in Controller
+// app/Http/Controllers/ProductController.php
+use Illuminate\Http\Request;
+use App\Models\Product;
+public function store(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'price' => 'required|numeric',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+    ]);
+    $imagePath = null;
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('products', 'public');
+    }
+    $product = Product::create([
+        'name' => $request->name,
+        'description' => $request->description,
+        'price' => $request->price,
+        'image' => $imagePath,
+    ]);
+    return response()->json(['message' => 'Product created', 'product' => $product], 201);
+}
+Also make sure the Product model has fillable set:
+// app/Models/Product.php
+protected $fillable = ['name', 'description', 'price', 'image'];
+---
+2. Frontend: React Example
+import React, { useState } from 'react';
+import axios from 'axios';
+const ProductForm = () => {
+    const [form, setForm] = useState({
+        name: '',
+        description: '',
+        price: '',
+        image: null
+    });
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setForm(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+    const handleFileChange = (e) => {
+        setForm(prev => ({
+            ...prev,
+            image: e.target.files[0]
+        }));
+    };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('name', form.name);
+        formData.append('description', form.description);
+        formData.append('price', form.price);
+        if (form.image) {
+            formData.append('image', form.image);
+        }
+        try {
+            const response = await axios.post('http://localhost:8000/api/products', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            console.log('Success:', response.data);
+        } catch (error) {
+            console.error('Error:', error.response.data);
+        }
+    };
+    return (
+        <form onSubmit={handleSubmit}>
+            <input type="text" name="name" placeholder="Name" onChange={handleChange} required />
+            <textarea name="description" placeholder="Description" onChange={handleChange}></textarea>
+            <input type="number" name="price" placeholder="Price" onChange={handleChange} required />
+            <input type="file" name="image" onChange={handleFileChange} />
+            <button type="submit">Submit</button>
+        </form>
+    );
+};
+export default ProductForm;
+---
+Let me know if you want to include authentication or show an image preview before upload.
+
+
+
