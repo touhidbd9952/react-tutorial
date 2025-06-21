@@ -1,6 +1,7 @@
 //////React install in Laravel 10////////
 
-To use React in a Laravel 10 project, you have a few options. The most common and straightforward way is using Laravel Vite (which comes by default with Laravel 10) along with React and Babel. Here’s a step-by-step guide to get you started:
+To use React in a Laravel 10 project, you have a few options. The most common and straightforward way is using Laravel Vite 
+(which comes by default with Laravel 10) along with React and Babel. Here’s a step-by-step guide to get you started:
 ---
 Step 1: Install Laravel (if not done yet)
 
